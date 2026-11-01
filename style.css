@@ -1,0 +1,118 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #081426;
+  color: #eaf6ff;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 24px;
+  background: #10243d;
+  border: 1px solid #1e90ff;
+  border-radius: 18px;
+  box-shadow: 0 0 24px rgba(0, 150, 255, 0.2);
+}
+
+h1, h2 {
+  color: #38bdf8;
+  text-shadow: 0 0 12px rgba(0, 200, 255, 0.4);
+}
+
+h1 {
+  font-size: 26px;
+}
+
+h2 {
+  margin-top: 24px;
+  font-size: 19px;
+}
+
+p {
+  color: #a9c7e5;
+}
+
+label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: bold;
+}
+
+input {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #09182b;
+  color: white;
+  border: 1px solid #278cff;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  margin: 6px 0;
+  background: linear-gradient(135deg, #087cff, #00c8ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+#result,
+#productList > div {
+  padding: 14px;
+  margin: 12px 0;
+  background: #0b1b30;
+  color: #eaf6ff;
+  border: 1px solid #278cff;
+  border-radius: 10px;
+  line-height: 1.8;
+}
+
+#productList p {
+  color: #eaf6ff;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #278cff;
+  margin: 24px 0;
+}
+
+video {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 12px;
+  border: 2px solid #00c8ff;
+  border-radius: 12px;
+  background: black;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .app {
+    margin: 5px auto;
+    padding: 16px;
+  }
+}
