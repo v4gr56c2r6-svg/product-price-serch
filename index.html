@@ -1,0 +1,54 @@
+
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<div class="app">
+  <h1>🔎 商品価格検索</h1>
+  <p>富士急ハイランド 商品管理</p>
+
+  <h2>商品を検索</h2>
+  <label for="barcode">バーコード（JANコード）</label>
+  <input id="barcode" type="text" placeholder="JANコードを入力">
+  <button id="searchButton">商品を検索</button>
+  <div id="result">ここに商品情報が表示されます</div>
+
+  <hr>
+
+  <h2>カメラで読み取る</h2>
+  <button id="cameraButton">カメラを起動する</button>
+  <video id="camera" width="100%" playsinline style="display:none;"></video>
+  <button id="stopCameraButton" style="display:none;">カメラを停止する</button>
+
+  <hr>
+
+  <h2>商品を登録</h2>
+  <label for="newBarcode">JANコード</label>
+  <input id="newBarcode" type="text" placeholder="JANコード">
+
+  <label for="newName">商品名</label>
+  <input id="newName" type="text" placeholder="商品名">
+
+  <label for="newPrice">販売価格</label>
+  <input id="newPrice" type="number" placeholder="価格">
+
+  <button id="addButton">商品を登録する</button>
+
+  <hr>
+
+  <h2>登録済み商品一覧</h2>
+  <input id="listSearch" type="text" placeholder="商品名・JANコードで検索">
+  <div id="productList">まだ商品が登録されていません</div>
+
+  <hr>
+
+  <h2>商品データのバックアップ</h2>
+  <button id="backupButton">商品データを保存する</button>
+
+  <h2>商品データの復元</h2>
+  <input id="restoreFile" type="file" accept=".json,application/json">
+  <button id="restoreButton">商品データを復元する</button>
+</div>
+
+<script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script src="script.js"></script>
