@@ -116,3 +116,31 @@ video {
     padding: 16px;
   }
 }
+
+/* iPhoneなどスマホ画面向けの調整 */
+@media (max-width: 600px) {
+  body {
+    padding: 4px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+    padding: 20px 14px;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+
+  h2 {
+    font-size: 21px;
+  }
+
+  input,
+  button {
+    font-size: 18px;
+    min-height: 52px;
+  }
+}
