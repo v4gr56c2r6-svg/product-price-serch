@@ -236,112 +236,23 @@ document.getElementById("restoreButton")
     reader.readAsText(file);
 });
 
-
 // バーコード読み取り機能
 let codeReader = null;
 
-// カメラを完全に停止・解放する
-function stopCamera() {
-  const video = document.getElementById("camera");
-  const stopButton = document.getElementById("stopCameraButton");
-
-  // 現在の映像ストリームを取得
-  const stream = video.srcObject;
-
-  // ZXingの読み取りを停止
-  if (codeReader) {
-    codeReader.reset();
-    codeReader = null;
-  }
-
-  // カメラのトラックを完全に停止
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-  }
-
-  // 映像をリセット
-  video.pause();
-  video.srcObject = null;
-  video.removeAttribute("src");
-  video.load();
-
-  video.style.display = "none";
-  stopButton.style.display = "none";
-}
-
-
-// バーコード読み取り機能
-let codeReader = null;
-let cameraStarting = false;
-
-// カメラを完全に停止する
-function stopCamera() {
-  const video = document.getElementById("camera");
-  const stopButton = document.getElementById("stopCameraButton");
-  const cameraButton = document.getElementById("cameraButton");
-
-  // ストリームを先に取得
-  const stream = video.srcObject;
-
-  // ZXingを停止
-  if (codeReader) {
-    codeReader.reset();
-    codeReader = null;
-  }
-
-  // カメラの映像トラックを完全停止
-  if (stream) {
-    stream.getTracks().forEach(track => {
-      track.stop();
-    });
-  }
-
-  // 映像をリセット
-  video.pause();
-  video.srcObject = null;
-  video.style.display = "none";
-  stopButton.style.display = "none";
-  cameraButton.disabled = false;
-
-  cameraStarting = false;
-}
-
-// カメラ起動
 document.getElementById("cameraButton")
   .addEventListener("click", async function() {
-
-    if (cameraStarting) return;
-
-    cameraStarting = true;
-
     const video = document.getElementById("camera");
     const stopButton = document.getElementById("stopCameraButton");
-    const cameraButton = document.getElementById("cameraButton");
-
-    cameraButton.disabled = true;
-
-    // 前回のカメラを完全に停止
-    stopCamera();
-
-    cameraStarting = true;
-    cameraButton.disabled = true;
 
     try {
       if (typeof ZXing === "undefined") {
-        throw new Error("読み取りライブラリがありません");
+        throw new Error("読み取りライブラリを読み込めませんでした");
       }
 
       codeReader = new ZXing.BrowserMultiFormatReader();
 
       video.style.display = "block";
-      video.style.width = "100%";
-      video.style.height = "auto";
-      video.style.objectFit = "contain";
-      video.setAttribute("playsinline", "");
-      video.setAttribute("autoplay", "");
-      video.muted = true;
-
-      stopButton.style.display = "block";
+      stopButton.style.display = "inline-block";
 
       const devices = await codeReader.listVideoInputDevices();
 
@@ -349,56 +260,67 @@ document.getElementById("cameraButton")
         throw new Error("カメラが見つかりません");
       }
 
-// 背面カメラを探す
-const rearCameras = devices.filter(device =>
-  /back|rear|environment/i.test(device.label)
-);
+      // 背面カメラを優先
+      const rearCameras = devices.filter(device =>
+        /back|rear|environment/i.test(device.label)
+      );
 
-// 標準の広角レンズを優先する
-const preferredCamera =
-  rearCameras.find(device =>
-    /wide|main|標準/i.test(device.label) &&
-    !/ultra|tele|zoom/i.test(device.label)
-  ) ||
+      // 望遠・超広角を避け、標準カメラを優先
+      const preferredCamera =
+        rearCameras.find(device =>
+          /wide|main|標準/i.test(device.label) &&
+          !/ultra|tele|zoom/i.test(device.label)
+        ) ||
+        rearCameras.find(device =>
+          !/ultra|tele|zoom/i.test(device.label)
+        ) ||
+        rearCameras[0] ||
+        devices[devices.length - 1];
 
-  // 広角が見つからなければ望遠・超広角以外を選ぶ
-  rearCameras.find(device =>
-    !/ultra|tele|zoom/i.test(device.label)
-  ) ||
+      const cameraId = preferredCamera.deviceId;
 
-  // それでも見つからなければ従来どおり最後のカメラ
-  rearCameras[0] ||
-  devices[devices.length - 1];
-
-const cameraId = preferredCamera.deviceId;
-      
       codeReader.decodeFromVideoDevice(
         cameraId,
         video,
         function(result, error) {
-
           if (result) {
             const barcode = result.getText();
 
             document.getElementById("barcode").value = barcode;
 
-            stopCamera();
+            codeReader.reset();
+            codeReader = null;
+
+            video.style.display = "none";
+            stopButton.style.display = "none";
+
             searchProduct();
           }
         }
       );
 
-      cameraStarting = false;
-      cameraButton.disabled = false;
-
     } catch (error) {
       console.error(error);
-      stopCamera();
-
       alert(error.message || "カメラを起動できませんでした");
+
+      if (codeReader) {
+        codeReader.reset();
+        codeReader = null;
+      }
+
+      video.style.display = "none";
+      stopButton.style.display = "none";
     }
   });
 
-// カメラ停止ボタン
+// カメラ停止
 document.getElementById("stopCameraButton")
-  .addEventListener("click", stopCamera);
+  .addEventListener("click", function() {
+    if (codeReader) {
+      codeReader.reset();
+      codeReader = null;
+    }
+
+    document.getElementById("camera").style.display = "none";
+    document.getElementById("stopCameraButton").style.display = "none";
+  });
