@@ -349,14 +349,29 @@ document.getElementById("cameraButton")
         throw new Error("カメラが見つかりません");
       }
 
-      const backCamera = devices.find(device =>
-        /back|rear|environment/i.test(device.label)
-      );
+// 背面カメラを探す
+const rearCameras = devices.filter(device =>
+  /back|rear|environment/i.test(device.label)
+);
 
-      const cameraId = backCamera
-        ? backCamera.deviceId
-        : devices[devices.length - 1].deviceId;
+// 標準の広角レンズを優先する
+const preferredCamera =
+  rearCameras.find(device =>
+    /wide|main|標準/i.test(device.label) &&
+    !/ultra|tele|zoom/i.test(device.label)
+  ) ||
 
+  // 広角が見つからなければ望遠・超広角以外を選ぶ
+  rearCameras.find(device =>
+    !/ultra|tele|zoom/i.test(device.label)
+  ) ||
+
+  // それでも見つからなければ従来どおり最後のカメラ
+  rearCameras[0] ||
+  devices[devices.length - 1];
+
+const cameraId = preferredCamera.deviceId;
+      
       codeReader.decodeFromVideoDevice(
         cameraId,
         video,
