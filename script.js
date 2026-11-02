@@ -298,7 +298,7 @@ document.getElementById("cameraButton")
           }
         }
       );
-
+      
     } catch (error) {
       console.error(error);
       alert(error.message || "カメラを起動できませんでした");
