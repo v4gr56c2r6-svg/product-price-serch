@@ -236,23 +236,66 @@ document.getElementById("restoreButton")
     reader.readAsText(file);
 });
 
+
 // バーコード読み取り機能
 let codeReader = null;
 
+// カメラを完全に停止・解放する
+function stopCamera() {
+  const video = document.getElementById("camera");
+  const stopButton = document.getElementById("stopCameraButton");
+
+  // 現在の映像ストリームを取得
+  const stream = video.srcObject;
+
+  // ZXingの読み取りを停止
+  if (codeReader) {
+    codeReader.reset();
+    codeReader = null;
+  }
+
+  // カメラのトラックを完全に停止
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+  }
+
+  // 映像をリセット
+  video.pause();
+  video.srcObject = null;
+  video.removeAttribute("src");
+  video.load();
+
+  video.style.display = "none";
+  stopButton.style.display = "none";
+}
+
+// カメラ起動
 document.getElementById("cameraButton")
   .addEventListener("click", async function() {
+
     const video = document.getElementById("camera");
     const stopButton = document.getElementById("stopCameraButton");
 
+    // 前回のカメラが残っていたら解放
+    stopCamera();
+
     try {
       if (typeof ZXing === "undefined") {
-        alert("バーコード読み取りライブラリを読み込めませんでした");
-        return;
+        throw new Error("バーコード読み取りライブラリを読み込めませんでした");
       }
 
       codeReader = new ZXing.BrowserMultiFormatReader();
 
+      // 映像表示設定
       video.style.display = "block";
+      video.style.width = "100%";
+      video.style.height = "auto";
+      video.style.objectFit = "contain";
+
+      video.setAttribute("playsinline", "");
+      video.setAttribute("autoplay", "");
+      video.muted = true;
+
       stopButton.style.display = "inline-block";
 
       const devices = await codeReader.listVideoInputDevices();
@@ -273,14 +316,13 @@ document.getElementById("cameraButton")
         cameraId,
         video,
         function(result, error) {
+
           if (result) {
             const barcode = result.getText();
 
             document.getElementById("barcode").value = barcode;
 
-            codeReader.reset();
-            video.style.display = "none";
-            stopButton.style.display = "none";
+            stopCamera();
 
             searchProduct();
           }
@@ -289,20 +331,13 @@ document.getElementById("cameraButton")
 
     } catch (error) {
       console.error(error);
+
+      stopCamera();
+
       alert(error.message || "カメラを起動できませんでした");
-
-      video.style.display = "none";
-      stopButton.style.display = "none";
     }
   });
 
-// カメラ停止
+// カメラ停止ボタン
 document.getElementById("stopCameraButton")
-  .addEventListener("click", function() {
-    if (codeReader) {
-      codeReader.reset();
-    }
-
-    document.getElementById("camera").style.display = "none";
-    document.getElementById("stopCameraButton").style.display = "none";
-  });
+  .addEventListener("click", stopCamera);
