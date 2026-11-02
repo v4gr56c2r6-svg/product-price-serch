@@ -269,34 +269,79 @@ function stopCamera() {
   stopButton.style.display = "none";
 }
 
+
+// バーコード読み取り機能
+let codeReader = null;
+let cameraStarting = false;
+
+// カメラを完全に停止する
+function stopCamera() {
+  const video = document.getElementById("camera");
+  const stopButton = document.getElementById("stopCameraButton");
+  const cameraButton = document.getElementById("cameraButton");
+
+  // ストリームを先に取得
+  const stream = video.srcObject;
+
+  // ZXingを停止
+  if (codeReader) {
+    codeReader.reset();
+    codeReader = null;
+  }
+
+  // カメラの映像トラックを完全停止
+  if (stream) {
+    stream.getTracks().forEach(track => {
+      track.stop();
+    });
+  }
+
+  // 映像をリセット
+  video.pause();
+  video.srcObject = null;
+  video.style.display = "none";
+  stopButton.style.display = "none";
+  cameraButton.disabled = false;
+
+  cameraStarting = false;
+}
+
 // カメラ起動
 document.getElementById("cameraButton")
   .addEventListener("click", async function() {
 
+    if (cameraStarting) return;
+
+    cameraStarting = true;
+
     const video = document.getElementById("camera");
     const stopButton = document.getElementById("stopCameraButton");
+    const cameraButton = document.getElementById("cameraButton");
 
-    // 前回のカメラが残っていたら解放
+    cameraButton.disabled = true;
+
+    // 前回のカメラを完全に停止
     stopCamera();
+
+    cameraStarting = true;
+    cameraButton.disabled = true;
 
     try {
       if (typeof ZXing === "undefined") {
-        throw new Error("バーコード読み取りライブラリを読み込めませんでした");
+        throw new Error("読み取りライブラリがありません");
       }
 
       codeReader = new ZXing.BrowserMultiFormatReader();
 
-      // 映像表示設定
       video.style.display = "block";
       video.style.width = "100%";
       video.style.height = "auto";
       video.style.objectFit = "contain";
-
       video.setAttribute("playsinline", "");
       video.setAttribute("autoplay", "");
       video.muted = true;
 
-      stopButton.style.display = "inline-block";
+      stopButton.style.display = "block";
 
       const devices = await codeReader.listVideoInputDevices();
 
@@ -323,15 +368,16 @@ document.getElementById("cameraButton")
             document.getElementById("barcode").value = barcode;
 
             stopCamera();
-
             searchProduct();
           }
         }
       );
 
+      cameraStarting = false;
+      cameraButton.disabled = false;
+
     } catch (error) {
       console.error(error);
-
       stopCamera();
 
       alert(error.message || "カメラを起動できませんでした");
