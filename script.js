@@ -324,3 +324,90 @@ document.getElementById("stopCameraButton")
     document.getElementById("camera").style.display = "none";
     document.getElementById("stopCameraButton").style.display = "none";
   });
+
+// 商品登録専用バーコード読み取り
+let newBarcodeReader = null;
+
+document.getElementById("newBarcodeCameraButton")
+  .addEventListener("click", async function() {
+
+    const video = document.getElementById("newBarcodeCamera");
+    const stopButton = document.getElementById("stopNewBarcodeCameraButton");
+
+    try {
+      if (typeof ZXing === "undefined") {
+        throw new Error("読み取りライブラリを読み込めませんでした");
+      }
+
+      newBarcodeReader = new ZXing.BrowserMultiFormatReader();
+
+      video.style.display = "block";
+      stopButton.style.display = "inline-block";
+
+      const devices = await newBarcodeReader.listVideoInputDevices();
+
+      if (devices.length === 0) {
+        throw new Error("カメラが見つかりません");
+      }
+
+      const rearCameras = devices.filter(device =>
+        /back|rear|environment/i.test(device.label)
+      );
+
+      const camera =
+        rearCameras.find(device =>
+          /wide|main|標準/i.test(device.label) &&
+          !/ultra|tele|zoom/i.test(device.label)
+        ) ||
+        rearCameras.find(device =>
+          !/ultra|tele|zoom/i.test(device.label)
+        ) ||
+        rearCameras[0] ||
+        devices[devices.length - 1];
+
+      newBarcodeReader.decodeFromVideoDevice(
+        camera.deviceId,
+        video,
+        function(result, error) {
+          if (result) {
+            document.getElementById("newBarcode").value =
+              result.getText();
+
+            newBarcodeReader.reset();
+            newBarcodeReader = null;
+
+            video.style.display = "none";
+            stopButton.style.display = "none";
+
+            alert("JANコードを読み取りました！");
+          }
+        }
+      );
+
+    } catch (error) {
+      console.error(error);
+
+      if (newBarcodeReader) {
+        newBarcodeReader.reset();
+        newBarcodeReader = null;
+      }
+
+      video.style.display = "none";
+      stopButton.style.display = "none";
+
+      alert(error.message || "カメラを起動できませんでした");
+    }
+  });
+
+// 商品登録カメラを停止
+document.getElementById("stopNewBarcodeCameraButton")
+  .addEventListener("click", function() {
+
+    if (newBarcodeReader) {
+      newBarcodeReader.reset();
+      newBarcodeReader = null;
+    }
+
+    document.getElementById("newBarcodeCamera").style.display = "none";
+    document.getElementById("stopNewBarcodeCameraButton").style.display = "none";
+  });
