@@ -43,6 +43,23 @@
   <label for="newBarcode">JANコード</label>
   <input id="newBarcode" type="text" placeholder="JANコード">
 
+  <button id="newBarcodeCameraButton">
+  📷 JANコードを読み取る
+</button>
+
+<video
+  id="newBarcodeCamera"
+  playsinline
+  style="display:none; width:100%; max-width:400px;"
+></video>
+
+<button
+  id="stopNewBarcodeCameraButton"
+  style="display:none;"
+>
+  読み取りを終了する
+</button>
+
   <label for="newName">商品名</label>
   <input id="newName" type="text" placeholder="商品名">
 
