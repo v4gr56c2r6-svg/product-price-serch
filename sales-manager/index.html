@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#202421">
+    <meta name="description" content="絶叫焼きの売上日報を記録・集計する店舗向けアプリ">
+    <title>絶叫焼き Sales Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <section id="vault-gate" class="vault-gate">
+      <form id="vault-form" class="vault-card">
+        <span class="brand-mark vault-mark" aria-hidden="true">絶</span>
+        <p class="eyebrow">PRIVATE LOCAL VAULT</p>
+        <h1 id="vault-heading">日報データを暗号化して保存</h1>
+        <p id="vault-description" class="vault-description">最初にパスワードを設定します。商品マスターと日報は暗号化してこのブラウザに保存します。</p>
+        <div class="field">
+          <label for="vault-password" id="vault-password-label">新しいパスワード</label>
+          <input id="vault-password" type="password" minlength="12" autocomplete="new-password" required>
+        </div>
+        <div id="vault-confirm-group" class="field">
+          <label for="vault-password-confirm">パスワード（確認）</label>
+          <input id="vault-password-confirm" type="password" minlength="12" autocomplete="new-password" required>
+        </div>
+        <button id="vault-submit" class="button button-primary vault-submit" type="submit">パスワードを設定</button>
+        <p id="vault-status" class="vault-status" role="status" aria-live="polite"></p>
+        <p class="vault-footnote">このパスワードは保存・送信されません。忘れると日報を復元できません。</p>
+      </form>
+    </section>
+
+    <div class="app-shell" id="app-shell" hidden>
+      <aside class="sidebar" aria-label="メインメニュー">
+        <a class="brand" href="#dashboard" data-view="dashboard" aria-label="絶叫焼き Sales Manager ホーム">
+          <span class="brand-mark" aria-hidden="true">絶</span>
+          <span class="brand-copy"><strong>絶叫焼き</strong><small>SALES MANAGER</small></span>
+        </a>
+        <div class="nav-label">店舗管理</div>
+        <nav class="main-nav">
+          <button class="nav-item is-active" data-view="dashboard"><span class="nav-icon" aria-hidden="true">⌂</span>ダッシュボード</button>
+          <button class="nav-item" data-view="entry"><span class="nav-icon" aria-hidden="true">＋</span>日報入力</button>
+          <button class="nav-item" data-view="monthly"><span class="nav-icon" aria-hidden="true">▤</span>日別・月別集計</button>
+          <button class="nav-item" data-view="catalog"><span class="nav-icon" aria-hidden="true">◇</span>商品・価格一覧</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="privacy-note"><span class="privacy-dot"></span><div><strong>この端末に保存</strong><small>商品・日報を暗号化</small></div></div>
+          <p class="sidebar-version">絶叫焼き 専用<br>日報管理 v1.0</p>
+        </div>
+      </aside>
+
+      <div class="content-shell">
+        <header class="topbar">
+          <div class="mobile-brand"><span class="brand-mark" aria-hidden="true">絶</span><strong>絶叫焼き</strong></div>
+          <div class="topbar-title"><span class="eyebrow">STORE OPERATIONS</span><span id="page-title">ダッシュボード</span></div>
+          <div class="topbar-actions">
+            <label class="month-picker-label" for="active-month">対象月</label>
+            <input id="active-month" class="month-picker" type="month" aria-label="集計する月">
+            <button class="button button-primary button-compact" data-view="entry"><span aria-hidden="true">＋</span> 日報を入力</button>
+            <button class="button button-secondary button-compact lock-button" id="lock-app" type="button">ロック</button>
+          </div>
+        </header>
+
+        <main id="main-content" tabindex="-1"></main>
+        <footer class="app-footer"><span>絶叫焼き Sales Manager</span><span>このブラウザ内に暗号化保存 · 外部送信なし</span></footer>
+      </div>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
