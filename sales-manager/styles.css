@@ -108,6 +108,19 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .chart-value { fill: #69756d; font-size: 9px; font-weight: 700; }
 .chart-empty { display: grid; min-height: 220px; place-items: center; color: var(--muted); text-align: center; font-size: 12px; }
 .chart-empty span { display: block; margin-top: 5px; font-size: 10px; }
+.menu-chart-toggle { display: flex; gap: 6px; margin: 0 0 17px; }
+.menu-chart-toggle-button { min-height: 32px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink-soft); padding: 0 11px; font-size: 10px; font-weight: 700; }
+.menu-chart-toggle-button.is-active { border-color: var(--green); background: var(--green-pale); color: var(--green); }
+.menu-chart-list { display: grid; gap: 12px; }
+.menu-chart-row { display: grid; grid-template-columns: minmax(110px, 190px) minmax(50px, 1fr) minmax(58px, auto); align-items: center; gap: 12px; }
+.menu-chart-product { display: grid; min-width: 0; gap: 3px; }
+.menu-chart-product strong { overflow: hidden; color: var(--ink); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.menu-chart-product span { color: var(--muted); font-size: 9px; }
+.menu-chart-track { height: 12px; overflow: hidden; border-radius: 99px; background: #edf1ed; }
+.menu-chart-bar { display: block; height: 100%; min-width: 3px; border-radius: inherit; background: var(--green); transition: width .2s ease; }
+.menu-chart-row.is-amount .menu-chart-bar { background: var(--orange); }
+.menu-chart-value { color: var(--ink-soft); font-size: 10px; font-weight: 750; text-align: right; white-space: nowrap; }
+.menu-chart-hint { margin: 15px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
 .summary-list { display: grid; }
 .summary-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid #f0f1ee; padding: 12px 0; }
 .summary-row:last-child { border-bottom: 0; }
@@ -249,6 +262,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .form-card { padding: 15px 13px; }
   .product-grid { grid-template-columns: 1fr; }
   .product-row { min-height: 48px; }
+  .menu-chart-row { grid-template-columns: minmax(78px, 112px) minmax(35px, 1fr) minmax(54px, auto); gap: 8px; }
+  .menu-chart-product strong { font-size: 10px; }
+  .menu-chart-value { font-size: 9px; }
   .catalog-grid, .data-tools { grid-template-columns: 1fr; }
   .report-card { grid-template-columns: 1fr auto; gap: 8px; }
   .report-details { grid-column: 1/-1; grid-row: 2; gap: 8px 12px; }

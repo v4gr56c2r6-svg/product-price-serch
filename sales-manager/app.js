@@ -268,6 +268,28 @@ function chartSVG(list, month) {
   return `<svg class="chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHTML(month)}の日別売上グラフ">${grids}${bars}${labels}</svg>`;
 }
 
+function menuProductChart(items, metric = "quantity") {
+  if (!items.length) return `<div class="chart-empty"><div>商品別の販売記録はありません<span>日報入力でメニューごとの販売数を記録すると、グラフに表示されます</span></div></div>`;
+  const isAmount = metric === "amount";
+  const valueKey = isAmount ? "amount" : "quantity";
+  const sortedItems = [...items].sort((a, b) => (Number(b[valueKey]) || 0) - (Number(a[valueKey]) || 0) || a.name.localeCompare(b.name, "ja"));
+  const maxValue = Math.max(1, ...sortedItems.map((item) => Number(item[valueKey]) || 0));
+  const rows = sortedItems.map((item) => {
+    const value = Number(item[valueKey]) || 0;
+    const width = value ? Math.max(1.5, value / maxValue * 100) : 0;
+    const valueLabel = isAmount ? yen(value) : `${numberText(value)}点`;
+    return `<div class="menu-chart-row${isAmount ? " is-amount" : ""}" role="listitem" aria-label="${escapeHTML(item.name)}: ${valueLabel}">
+      <div class="menu-chart-product"><strong title="${escapeHTML(item.name)}">${escapeHTML(item.name)}</strong><span>${escapeHTML(item.group)}</span></div>
+      <div class="menu-chart-track" aria-hidden="true"><span class="menu-chart-bar" style="width:${width.toFixed(2)}%"></span></div>
+      <div class="menu-chart-value">${valueLabel}</div>
+    </div>`;
+  }).join("");
+  const note = isAmount
+    ? "参考金額は日報時点の商品価格 × 販売数です。レジ売上とは別集計です。"
+    : "選択月の商品別販売数です。バーの長さは、最も販売数が多いメニューを基準にしています。";
+  return `<div class="menu-chart-list" role="list" aria-label="${isAmount ? "商品別参考金額" : "商品別販売数"}">${rows}</div><p class="menu-chart-hint">${note}</p>`;
+}
+
 function reportTable(list, includeActions = true) {
   return `<div class="table-wrap"><table class="data-table"><thead><tr><th>営業日</th><th class="numeric">売上</th><th class="numeric">客数</th><th class="numeric">客単価</th><th>天気・気温</th><th>混雑</th>${includeActions ? "<th></th>" : ""}</tr></thead><tbody>${list.map((report) => {
     const ticket = report.customers ? Number(report.sales) / Number(report.customers) : 0;
@@ -301,7 +323,14 @@ function renderMonthly() {
   return `${pageHeading("日別・月別集計", `${monthLabel}の売上と営業記録を確認できます。`, `<button class="button button-secondary button-compact" id="export-csv">CSVを書き出す</button>`)}
     <section class="metric-grid">${metric}</section>
     <section class="panel"><div class="panel-header"><div><h2>月間売上推移</h2><p>売上を入力した営業日のみ表示</p></div><span class="mini-badge">${monthLabel}</span></div><div class="panel-body chart-wrap">${chartSVG(list, month)}</div></section>
-    <section class="panel recent-panel"><div class="panel-header"><div><h2>商品別販売数</h2><p>${monthLabel}の商品数量と参考金額</p></div></div><div class="panel-body">${productContent}</div></section>
+    <section class="panel recent-panel"><div class="panel-header"><div><h2>メニュー別グラフ</h2><p>${monthLabel}のメニューごとの販売状況</p></div><span class="mini-badge">${breakdown.length}商品</span></div><div class="panel-body">
+      <div class="menu-chart-toggle" role="group" aria-label="グラフ表示項目">
+        <button type="button" class="menu-chart-toggle-button is-active" data-product-chart-mode="quantity" aria-pressed="true">販売数</button>
+        <button type="button" class="menu-chart-toggle-button" data-product-chart-mode="amount" aria-pressed="false">参考金額</button>
+      </div>
+      <div id="menu-product-chart">${menuProductChart(breakdown)}</div>
+    </div></section>
+    <section class="panel recent-panel"><div class="panel-header"><div><h2>商品別の数値一覧</h2><p>${monthLabel}の商品数量と参考金額</p></div></div><div class="panel-body">${productContent}</div></section>
     <section class="panel recent-panel"><div class="panel-header"><div><h2>日別日報</h2><p>${list.length}件の記録</p></div></div><div class="panel-body">${tableContent}</div></section>`;
 }
 
@@ -394,7 +423,18 @@ function render() {
   };
   $("#main-content").innerHTML = views[activeView]();
   if (activeView === "entry") initializeEntryForm();
-  if (activeView === "monthly") $("#export-csv")?.addEventListener("click", exportCSV);
+  if (activeView === "monthly") {
+    $("#export-csv")?.addEventListener("click", exportCSV);
+    $$('[data-product-chart-mode]').forEach((button) => button.addEventListener("click", () => {
+      const metric = button.dataset.productChartMode;
+      $$('[data-product-chart-mode]').forEach((control) => {
+        const isActive = control === button;
+        control.classList.toggle("is-active", isActive);
+        control.setAttribute("aria-pressed", String(isActive));
+      });
+      $("#menu-product-chart").innerHTML = menuProductChart(productBreakdown(monthReports(activeMonth())), metric);
+    }));
+  }
   if (activeView === "catalog") initializeDataTools();
   $$("[data-view]", $("#main-content")).forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
   $$("[data-edit-date]", $("#main-content")).forEach((button) => button.addEventListener("click", () => editReport(button.dataset.editDate)));
